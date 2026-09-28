@@ -1,0 +1,32 @@
+# Expo
+.expo/
+dist/
+
+# Node
+node_modules/
+
+# Native build outputs
+android/app/build/
+android/.gradle/
+android/.kotlin/
+ios/build/
+ios/Pods/
+ios/.xcode.env.local
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Secrets
+google-services.json
+GoogleService-Info.plist
+
+# Cache
+.cache/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
