@@ -13,7 +13,7 @@ Monorepo architecture follow kar rahe hain. Har member apne designated module ka
 | Member | Role | Assigned Directory | Responsibilities |
 | :--- | :--- | :--- | :--- |
 | **Abhishek** | Frontend Lead | `frontend/` | React Native (Expo) UI, Screens, Navigation, Audio/Camera sensors |
-| **Meehan** | Backend Lead | `backend/` | API Server, Relay endpoints, Cloud sync, Webhooks |
+| **Meezab** | Backend Lead | `backend/` | API Server, Relay endpoints, Cloud sync, Webhooks |
 | **Ashish** | Database Lead | `database/` | Local SQLite schema, Offline cache, Data migrations, Seeds |
 | **Aman** | Connectivity Lead | `connectivity/` | BLE Mesh network, WiFi-Direct, SMS Fallback, Satellite bridges |
 | **Lokesh** | Repo & DevOps Lead | `*` / Architecture | Version Control, Branch protection, PR Reviews, CI/CD & Merges |

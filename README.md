@@ -51,7 +51,7 @@ OneHelp/
 | Domain | Assigned Lead | Folder | Key Focus Areas |
 | :--- | :--- | :--- | :--- |
 | **Frontend** | **Abhishek** | [`frontend/`](./frontend) | Emergency UI/UX, Shake/Volume SOS triggers, Siren, Maps, Fast interaction |
-| **Backend** | **Meehan** | [`backend/`](./backend) | Cloud fallback API, WebSocket dispatch board, First-responder relay |
+| **Backend** | **Meezab** | [`backend/`](./backend) | Cloud fallback API, WebSocket dispatch board, First-responder relay |
 | **Database** | **Ashish** | [`database/`](./database) | Offline SQLite, Encrypted Medical Dossiers, Fast helpline queries |
 | **Connectivity** | **Aman** | [`connectivity/`](./connectivity) | BLE Mesh ad-hoc routing, WiFi-Direct P2P, Compressed SMS payloads |
 | **Repo & DevOps** | **Lokesh** | Root / All | Git Flow, Branch Protection, CI/CD, Merges, Code Reviews |

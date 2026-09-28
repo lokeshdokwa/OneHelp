@@ -1,6 +1,6 @@
 # 🖥️ OneHelp — Backend Module
 
-> **Assigned Lead:** Meehan  
+> **Assigned Lead:** Meezab  
 > **Repository:** [OneHelp](https://github.com/lokeshdokwa/OneHelp)
 
 This folder contains the backend server, API gateway, emergency services dispatch integrations, and cloud sync services.

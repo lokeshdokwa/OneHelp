@@ -11,7 +11,7 @@ Brief summary of what needs to be delivered.
 
 ### 👤 Module Owner
 - [ ] Frontend (Abhishek)
-- [ ] Backend (Meehan)
+- [ ] Backend (Meezab)
 - [ ] Database (Ashish)
 - [ ] Connectivity (Aman)
 - [ ] Repo & Integration (Lokesh)
