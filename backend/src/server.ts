@@ -1,30 +1,12 @@
-import { Server } from 'socket.io';
 import { createServer } from 'http';
 import app from './app';
 import { env } from './config/env';
 import { logger } from './config/logger';
 import { prisma } from './config/database';
+import { initializeSocket } from './config/socket';
 
 const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: env.CORS_ORIGINS === '*' ? '*' : env.CORS_ORIGINS.split(','),
-  }
-});
-
-io.on('connection', (socket) => {
-  logger.info({ socketId: socket.id }, 'Socket connected');
-  
-  socket.on('join', (room) => {
-    socket.join(room);
-  });
-
-  socket.on('disconnect', () => {
-    logger.info({ socketId: socket.id }, 'Socket disconnected');
-  });
-});
-
-export { io };
+export const io = initializeSocket(server);
 
 const startServer = async () => {
   try {
