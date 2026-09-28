@@ -59,7 +59,10 @@
       ],
       "expo-sqlite",
       "expo-secure-store",
-      "expo-font"
+      "expo-font",
+      "expo-audio",
+      "expo-video",
+      "expo-asset"
     ]
   }
 }

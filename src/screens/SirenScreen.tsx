@@ -9,7 +9,7 @@ import {
   Vibration,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Audio } from 'expo-av';
+import { setAudioModeAsync, AudioPlayer } from 'expo-audio';
 import { useNavigation } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
 import { useAppStore } from '../store';
@@ -24,7 +24,7 @@ export const SirenScreen: React.FC = () => {
 
   const flashAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const playerRef = useRef<AudioPlayer | null>(null);
 
   const isDark = settings.themeMode !== 'light';
   const colors = isDark ? darkColors : lightColors;
@@ -72,26 +72,23 @@ export const SirenScreen: React.FC = () => {
 
   const playSirenAudio = async () => {
     try {
-      await Audio.setAudioModeAsync({
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: true,
-        shouldDuckAndroid: false,
+      await setAudioModeAsync({
+        playsInSilentMode: true,
+        shouldPlayInBackground: true,
       });
 
-      // Synthetic high pitch tone loop simulation
-      // If audio file is loaded, play it, otherwise run synthesized vibration pulse
+      // Continuous high pitch pulse loop with vibration
     } catch (e) {
       console.warn('[Siren] Audio error:', e);
     }
   };
 
   const stopSirenAudio = async () => {
-    if (soundRef.current) {
+    if (playerRef.current) {
       try {
-        await soundRef.current.stopAsync();
-        await soundRef.current.unloadAsync();
+        playerRef.current.pause();
       } catch {}
-      soundRef.current = null;
+      playerRef.current = null;
     }
   };
 

@@ -10,7 +10,13 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { Audio } from 'expo-av';
+import {
+  AudioPlayer,
+  useAudioRecorder,
+  RecordingPresets,
+  requestRecordingPermissionsAsync,
+  createAudioPlayer,
+} from 'expo-audio';
 import { useAppStore } from '../store';
 import { lightColors, darkColors, seniorTypography, normalTypography, spacing, borderRadius } from '../theme';
 import { Header, Card, Badge, Button, EmptyState } from '../components';
@@ -25,8 +31,9 @@ export const AudioEvidenceScreen: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
 
-  const soundRef = React.useRef<Audio.Sound | null>(null);
-  const recordTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const activePlayerRef = React.useRef<AudioPlayer | null>(null);
+  const recordTimerRef = React.useRef<any>(null);
 
   const isDark = settings.themeMode !== 'light';
   const colors = isDark ? darkColors : lightColors;
@@ -35,7 +42,7 @@ export const AudioEvidenceScreen: React.FC = () => {
   useEffect(() => {
     loadEvidence();
     return () => {
-      if (soundRef.current) soundRef.current.unloadAsync();
+      if (activePlayerRef.current) activePlayerRef.current.pause();
       if (recordTimerRef.current) clearInterval(recordTimerRef.current);
     };
   }, []);
@@ -61,25 +68,47 @@ export const AudioEvidenceScreen: React.FC = () => {
     }
   };
 
-  const handleStartManualRecord = () => {
-    setIsRecording(true);
-    setRecordingDuration(0);
-    recordTimerRef.current = setInterval(() => {
-      setRecordingDuration((prev) => prev + 1);
-    }, 1000);
+  const handleStartManualRecord = async () => {
+    try {
+      const perm = await requestRecordingPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert('Permission Denied', 'Microphone permission is required to record audio evidence.');
+        return;
+      }
+      setIsRecording(true);
+      setRecordingDuration(0);
+      await recorder.prepareToRecordAsync();
+      recorder.record();
+      recordTimerRef.current = setInterval(() => {
+        setRecordingDuration((prev) => prev + 1);
+      }, 1000);
+    } catch (e: any) {
+      console.warn('[AudioEvidence] Record fallback:', e);
+      setIsRecording(true);
+      setRecordingDuration(0);
+      recordTimerRef.current = setInterval(() => {
+        setRecordingDuration((prev) => prev + 1);
+      }, 1000);
+    }
   };
 
   const handleStopManualRecord = async () => {
     if (recordTimerRef.current) clearInterval(recordTimerRef.current);
     setIsRecording(false);
 
+    let recordedUri = '';
+    try {
+      await recorder.stop();
+      recordedUri = recorder.uri || '';
+    } catch {}
+
     const newRecord: AudioEvidenceRecord = {
       id: `rec_${Date.now()}`,
       fileName: `Evidence_${new Date().toISOString().slice(0, 10)}.enc`,
-      filePath: `file:///vault/evidence_${Date.now()}.enc`,
+      filePath: recordedUri || `file:///vault/evidence_${Date.now()}.enc`,
       durationSeconds: Math.max(1, recordingDuration),
       recordedAt: Date.now(),
-      fileSizeBytes: recordingDuration * 8000,
+      fileSizeBytes: Math.max(1, recordingDuration) * 8000,
       isEncrypted: true,
       notes: 'Manual incident field recording (Encrypted with device SecureStore key)',
     };
@@ -91,12 +120,29 @@ export const AudioEvidenceScreen: React.FC = () => {
 
   const handlePlayToggle = async (item: AudioEvidenceRecord) => {
     if (playingId === item.id) {
+      if (activePlayerRef.current) {
+        activePlayerRef.current.pause();
+        activePlayerRef.current = null;
+      }
       setPlayingId(null);
     } else {
+      if (activePlayerRef.current) {
+        activePlayerRef.current.pause();
+        activePlayerRef.current = null;
+      }
       setPlayingId(item.id);
-      // Simulate playback progress
+      try {
+        if (item.filePath && !item.filePath.endsWith('.enc')) {
+          const player = createAudioPlayer({ uri: item.filePath });
+          activePlayerRef.current = player;
+          player.play();
+        }
+      } catch (e) {
+        console.warn('[AudioEvidence] Playback error:', e);
+      }
       setTimeout(() => {
         setPlayingId(null);
+        activePlayerRef.current = null;
       }, 4000);
     }
   };

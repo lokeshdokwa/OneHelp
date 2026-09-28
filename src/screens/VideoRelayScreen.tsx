@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,40 +9,130 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import * as ImagePicker from 'expo-image-picker';
+import { CameraView, useCameraPermissions, useMicrophonePermissions, CameraType } from 'expo-camera';
+import { VideoView, useVideoPlayer } from 'expo-video';
 import { useAppStore } from '../store';
 import { lightColors, darkColors, seniorTypography, normalTypography, spacing, borderRadius } from '../theme';
 import { Header, Card, Badge, Button } from '../components';
 import * as db from '../db';
+
+const VideoPreview: React.FC<{ uri: string }> = ({ uri }) => {
+  const player = useVideoPlayer({ uri }, (p) => {
+    p.loop = true;
+    p.play();
+  });
+
+  return (
+    <VideoView
+      player={player}
+      style={styles.videoPlayer}
+      nativeControls
+      contentFit="cover"
+    />
+  );
+};
 
 export const VideoRelayScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const { settings, activeSosSession } = useAppStore();
   const [videoUri, setVideoUri] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [facing, setFacing] = useState<CameraType>('front');
+  const [cameraActive, setCameraActive] = useState(false);
+
+  const [camPermission, requestCamPermission] = useCameraPermissions();
+  const [micPermission, requestMicPermission] = useMicrophonePermissions();
+
+  const cameraRef = useRef<CameraView>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const isDark = settings.themeMode !== 'light';
   const colors = isDark ? darkColors : lightColors;
   const typo = settings.seniorMode ? seniorTypography : normalTypography;
 
-  const handleRecordVideo = async () => {
+  useEffect(() => {
+    if (isRecording) {
+      setRecordingSeconds(0);
+      timerRef.current = setInterval(() => {
+        setRecordingSeconds((s) => {
+          if (s >= 14) {
+            stopRecording();
+            return 15;
+          }
+          return s + 1;
+        });
+      }, 1000);
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isRecording]);
+
+  const ensurePermissions = async () => {
+    if (!camPermission?.granted) {
+      const res = await requestCamPermission();
+      if (!res.granted) {
+        Alert.alert('Permission Needed', 'Camera permission is required for emergency video recording.');
+        return false;
+      }
+    }
+    if (!micPermission?.granted) {
+      await requestMicPermission();
+    }
+    return true;
+  };
+
+  const handleStartCamera = async () => {
+    const ok = await ensurePermissions();
+    if (ok) {
+      setCameraActive(true);
+    }
+  };
+
+  const startRecording = async () => {
+    const ok = await ensurePermissions();
+    if (!ok) return;
+
+    if (!cameraRef.current) {
+      setCameraActive(true);
+      return;
+    }
+
     try {
       setIsRecording(true);
-      const res = await ImagePicker.launchCameraAsync({
-        mediaTypes: ['videos'],
-        videoMaxDuration: 15,
-        allowsEditing: false,
-        quality: 0.4, // Low bandwidth compression
+      const res = await cameraRef.current.recordAsync({
+        maxDuration: 15,
       });
       setIsRecording(false);
-
-      if (!res.canceled && res.assets && res.assets[0]) {
-        setVideoUri(res.assets[0].uri);
+      if (res?.uri) {
+        setVideoUri(res.uri);
+        setCameraActive(false);
       }
     } catch (err: any) {
       setIsRecording(false);
-      Alert.alert('Camera Error', err.message || 'Unable to open camera recorder.');
+      Alert.alert('Recording Error', err.message || 'Unable to record video.');
     }
+  };
+
+  const stopRecording = () => {
+    if (cameraRef.current && isRecording) {
+      try {
+        cameraRef.current.stopRecording();
+      } catch {}
+      setIsRecording(false);
+    }
+  };
+
+  const toggleFacing = () => {
+    setFacing((prev) => (prev === 'back' ? 'front' : 'back'));
+  };
+
+  const handleRetake = () => {
+    setVideoUri(null);
+    setCameraActive(true);
   };
 
   const handleAttachToSos = async () => {
@@ -85,45 +175,97 @@ export const VideoRelayScreen: React.FC = () => {
             Enables speech or hearing impaired victims, or individuals in hostage situations where speaking is dangerous, to record hand signs and immediate visual surroundings.
           </Text>
 
+          {/* Viewfinder / Player Box */}
           <View style={styles.recordBox}>
             {videoUri ? (
-              <View style={styles.videoRecordedPlaceholder}>
-                <Ionicons name="videocam" size={48} color="#10B981" />
-                <Text style={[styles.videoRecordedText, { color: colors.text }]}>
-                  15-Second Video Captured & Compressed
-                </Text>
-                <Badge label="OPTIMIZED (360p / 1.2MB)" variant="success" />
+              <View style={styles.previewContainer}>
+                <VideoPreview uri={videoUri} />
+                <View style={styles.badgeOverlay}>
+                  <Badge label="OPTIMIZED (480p H.264)" variant="success" />
+                </View>
+              </View>
+            ) : cameraActive ? (
+              <View style={styles.cameraContainer}>
+                <CameraView
+                  ref={cameraRef}
+                  style={StyleSheet.absoluteFill}
+                  facing={facing}
+                  mode="video"
+                  videoQuality="480p"
+                />
+                {isRecording && (
+                  <View style={styles.recordingIndicator}>
+                    <View style={styles.redDot} />
+                    <Text style={styles.recText}>REC 00:{recordingSeconds.toString().padStart(2, '0')} / 15s</Text>
+                  </View>
+                )}
+                <TouchableOpacity
+                  onPress={toggleFacing}
+                  style={styles.flipBtn}
+                  accessibilityLabel="Flip camera"
+                >
+                  <Ionicons name="camera-reverse" size={24} color="#FFFFFF" />
+                </TouchableOpacity>
               </View>
             ) : (
-              <TouchableOpacity onPress={handleRecordVideo} style={styles.emptyPrompt}>
+              <TouchableOpacity onPress={handleStartCamera} style={styles.emptyPrompt}>
                 <Ionicons name="videocam-outline" size={54} color={colors.primary} />
                 <Text style={[styles.emptyPromptText, { color: colors.text }]}>
-                  Tap to Record 15s Emergency Clip
+                  Tap to Launch Camera & Record
                 </Text>
                 <Text style={[styles.emptyPromptSub, { color: colors.textSecondary }]}>
-                  Camera opens directly in silent mode
+                  Front/Back camera with ISL gesture support
                 </Text>
               </TouchableOpacity>
             )}
           </View>
 
+          {/* Controls */}
           <View style={styles.buttonsRow}>
-            <Button
-              title={videoUri ? 'Retake Video' : 'Record Video'}
-              variant="outline"
-              onPress={handleRecordVideo}
-              icon={<Ionicons name="camera" size={18} color={colors.text} />}
-              style={{ flex: 1, marginRight: 8 }}
-            />
             {videoUri ? (
+              <>
+                <Button
+                  title="Retake Video"
+                  variant="outline"
+                  onPress={handleRetake}
+                  icon={<Ionicons name="camera" size={18} color={colors.text} />}
+                  style={{ flex: 1, marginRight: 8 }}
+                />
+                <Button
+                  title="Attach & Dispatch"
+                  variant="danger"
+                  onPress={handleAttachToSos}
+                  icon={<Ionicons name="send" size={18} color="#FFFFFF" />}
+                  style={{ flex: 1.2 }}
+                />
+              </>
+            ) : cameraActive ? (
+              isRecording ? (
+                <Button
+                  title={`Stop Recording (${recordingSeconds}s)`}
+                  variant="danger"
+                  onPress={stopRecording}
+                  icon={<Ionicons name="stop-circle" size={18} color="#FFFFFF" />}
+                  style={{ flex: 1 }}
+                />
+              ) : (
+                <Button
+                  title="Start 15s Recording"
+                  variant="danger"
+                  onPress={startRecording}
+                  icon={<Ionicons name="videocam" size={18} color="#FFFFFF" />}
+                  style={{ flex: 1 }}
+                />
+              )
+            ) : (
               <Button
-                title="Attach & Dispatch"
-                variant="danger"
-                onPress={handleAttachToSos}
-                icon={<Ionicons name="send" size={18} color="#FFFFFF" />}
-                style={{ flex: 1.2 }}
+                title="Open Camera"
+                variant="outline"
+                onPress={handleStartCamera}
+                icon={<Ionicons name="camera" size={18} color={colors.text} />}
+                style={{ flex: 1 }}
               />
-            ) : null}
+            )}
           </View>
         </Card>
 
@@ -131,10 +273,13 @@ export const VideoRelayScreen: React.FC = () => {
         <Card style={styles.accessibilityCard}>
           <Text style={[styles.cardTitle, { color: colors.text }]}>Accessibility Compliance</Text>
           <Text style={[styles.bullet, { color: colors.textSecondary }]}>
-            • Compatible with Indian Sign Language (ISL) emergency gestures
+            • Front-facing camera default for Indian Sign Language (ISL) emergency gestures
           </Text>
           <Text style={[styles.bullet, { color: colors.textSecondary }]}>
             • Ultra-low bitrate H.264 compression for slow 2G / Mesh packet transmission
+          </Text>
+          <Text style={[styles.bullet, { color: colors.textSecondary }]}>
+            • High-performance native rendering via expo-video and expo-camera
           </Text>
         </Card>
       </View>
@@ -164,21 +309,66 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   recordBox: {
-    height: 200,
+    height: 260,
     borderRadius: borderRadius.md,
     borderWidth: 2,
     borderStyle: 'dashed',
     borderColor: '#64748B40',
+    overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.md,
+    backgroundColor: '#00000020',
   },
-  videoRecordedPlaceholder: {
+  previewContainer: {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+  },
+  videoPlayer: {
+    width: '100%',
+    height: '100%',
+  },
+  badgeOverlay: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+  },
+  cameraContainer: {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+  },
+  recordingIndicator: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#000000A0',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
-  videoRecordedText: {
+  redDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#EF4444',
+    marginRight: 6,
+  },
+  recText: {
+    color: '#FFFFFF',
     fontWeight: '700',
-    marginVertical: 6,
+    fontSize: 12,
+  },
+  flipBtn: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    backgroundColor: '#000000A0',
+    padding: 8,
+    borderRadius: 20,
   },
   emptyPrompt: {
     alignItems: 'center',

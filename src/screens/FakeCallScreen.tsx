@@ -11,6 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
+import { setAudioModeAsync, createAudioPlayer, AudioPlayer } from 'expo-audio';
 import { useAppStore } from '../store';
 import { lightColors, darkColors, seniorTypography, normalTypography, spacing, borderRadius } from '../theme';
 import { Header, Card, Input, Button } from '../components';
@@ -31,12 +32,13 @@ export const FakeCallScreen: React.FC = () => {
   const ringAnim = useRef(new Animated.Value(1)).current;
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const durationTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const ringtonePlayerRef = useRef<AudioPlayer | null>(null);
 
   const isDark = settings.themeMode !== 'light';
   const colors = isDark ? darkColors : lightColors;
   const typo = settings.seniorMode ? seniorTypography : normalTypography;
 
-  // Ring animation
+  // Ring animation & ringtone audio playback
   useEffect(() => {
     let animLoop: Animated.CompositeAnimation | null = null;
     if (callState === 'RINGING') {
@@ -48,13 +50,38 @@ export const FakeCallScreen: React.FC = () => {
         ])
       );
       animLoop.start();
+
+      // Start incoming ringtone using expo-audio
+      setAudioModeAsync({ playsInSilentMode: true }).catch(() => {});
+      try {
+        const player = createAudioPlayer({
+          uri: 'https://actions.google.com/sounds/v1/telephones/telephone_ring.ogg',
+        });
+        player.loop = true;
+        player.play();
+        ringtonePlayerRef.current = player;
+      } catch (e) {
+        console.warn('[FakeCall] Ringtone audio error:', e);
+      }
     } else {
       Vibration.cancel();
       ringAnim.setValue(1);
+      if (ringtonePlayerRef.current) {
+        try {
+          ringtonePlayerRef.current.pause();
+        } catch {}
+        ringtonePlayerRef.current = null;
+      }
     }
     return () => {
       Vibration.cancel();
       animLoop?.stop();
+      if (ringtonePlayerRef.current) {
+        try {
+          ringtonePlayerRef.current.pause();
+        } catch {}
+        ringtonePlayerRef.current = null;
+      }
     };
   }, [callState]);
 
