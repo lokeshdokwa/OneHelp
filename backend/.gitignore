@@ -1,0 +1,22 @@
+node_modules/
+dist/
+coverage/
+
+# Never commit real secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# APK/AAB outputs
+artifacts/android/*.apk
+artifacts/android/*.aab
+
+# OS
+.DS_Store
+Thumbs.db
