@@ -1,0 +1,21 @@
+# OneHelp Code Owners
+# Syntax: path/ @github_username
+# When a PR modifies files in these paths, GitHub will automatically request review.
+
+# Global default reviewer (Repository & Version Control Lead)
+* @lokeshdokwa
+
+# Frontend Module (React Native / Expo)
+/frontend/ @lokeshdokwa
+
+# Backend Module (Server & APIs)
+/backend/ @lokeshdokwa
+
+# Database Module (Schemas & Migrations)
+/database/ @lokeshdokwa
+
+# Connectivity Module (BLE Mesh & Offline Protocols)
+/connectivity/ @lokeshdokwa
+
+# CI/CD Workflows & Repository Config
+/.github/ @lokeshdokwa

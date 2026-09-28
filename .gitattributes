@@ -1,0 +1,39 @@
+# Auto detect text files and perform LF normalization across Windows & Mac
+* text=auto eol=lf
+
+# Code files
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.sql text eol=lf
+*.py text eol=lf
+*.java text eol=lf
+*.kt text eol=lf
+*.c text eol=lf
+*.cpp text eol=lf
+*.h text eol=lf
+
+# Config & Docs
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh text eol=lf
+*.gitignore text eol=lf
+*.gitattributes text eol=lf
+*.env.example text eol=lf
+
+# Binary files - preserve byte-for-byte
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text eol=lf
+*.pdf binary
+*.sqlite binary
+*.sqlite3 binary
+*.db binary
+*.jar binary
+*.aar binary

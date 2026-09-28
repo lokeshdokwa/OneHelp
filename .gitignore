@@ -1,18 +1,31 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+# ==========================================
+# OneHelp Monorepo .gitignore
+# Multi-stack: React Native/Expo, Backend, DB, Connectivity
+# ==========================================
 
-# dependencies
+# --- Node / npm / yarn ---
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+package-lock.json.bak
 
-# Expo
+# --- Expo & React Native ---
 .expo/
 dist/
 web-build/
 expo-env.d.ts
+.metro-health-check*
 
-# Native
+# --- Native Build Artifacts ---
 .kotlin/
 .gradle/
 build/
+android/app/build/
+ios/build/
+ios/Pods/
 *.orig.*
 *.jks
 *.keystore
@@ -21,36 +34,77 @@ build/
 *.key
 *.mobileprovision
 
-# Metro & Bundler
-.metro-health-check*
+# --- Python (Backend) ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# debug & logs
-npm-debug.*
-yarn-debug.*
-yarn-error.*
-*.log
-build-error.txt
-*.tmp
+# --- Database & Local Storage ---
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
 
-# OS & Editor
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-.claude/
+# --- TypeScript ---
+*.tsbuildinfo
 
-# Security, Credentials, & Environment files
-*.pem
-*.cert
-*.crt
+# --- Environment & Secret Credentials ---
 .env
 .env.*
 !.env.example
+*.pem
+*.cert
+*.crt
+serviceAccountKey.json
+google-services.json
+GoogleService-Info.plist
 
-# typescript
-*.tsbuildinfo
+# --- Logs & Runtime ---
+logs/
+*.log
+*.tmp
+*.temp
+build-error.txt
 
-# generated native folders
-/ios
-/android
+# --- OS Specific Files ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
 
+# --- IDEs & Editors ---
+.vscode/
+.idea/
+.claude/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swp
+*~
