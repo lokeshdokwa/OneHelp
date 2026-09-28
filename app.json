@@ -1,0 +1,65 @@
+{
+  "expo": {
+    "name": "OneHelp",
+    "slug": "onehelp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "onehelp",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.onehelp.emergency",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "OneHelp needs your location to send your coordinates in emergency SOS alerts.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "OneHelp needs background location to broadcast rescue coordinates during active SOS even when the screen is locked.",
+        "NSMicrophoneUsageDescription": "OneHelp uses the microphone for hands-free voice trigger SOS detection and emergency audio evidence recording.",
+        "NSCameraUsageDescription": "OneHelp uses the camera for scanning emergency QR medical dossiers and hazard photo evidence.",
+        "NSBluetoothAlwaysUsageDescription": "OneHelp uses Bluetooth Low Energy to relay SOS alerts when there is zero cellular and Wi-Fi connectivity."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#DC2626",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "package": "com.onehelp.emergency",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "RECORD_AUDIO",
+        "CAMERA",
+        "BLUETOOTH",
+        "BLUETOOTH_ADMIN",
+        "BLUETOOTH_SCAN",
+        "BLUETOOTH_ADVERTISE",
+        "BLUETOOTH_CONNECT",
+        "SEND_SMS",
+        "VIBRATE",
+        "POST_NOTIFICATIONS",
+        "WAKE_LOCK"
+      ]
+    },
+    "plugins": [
+      "expo-dev-client",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow OneHelp to use your location for emergency dispatch."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow OneHelp to use your camera for emergency evidence and QR code scanning."
+        }
+      ],
+      "expo-sqlite",
+      "expo-secure-store",
+      "expo-font"
+    ]
+  }
+}
