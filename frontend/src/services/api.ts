@@ -9,8 +9,8 @@ import { MockBackendService } from './mockBackend';
 
 // ================= BACKEND CONFIGURATION =================
 // Set USE_MOCK_BACKEND to false and provide real BASE_URL when deploying production backend
-export const USE_MOCK_BACKEND = true;
-export const BASE_URL = 'https://api.onehelp.emergency.gov.in/v1';
+export const USE_MOCK_BACKEND = false;
+export const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1';
 
 const REQUEST_TIMEOUT_MS = 6000;
 
