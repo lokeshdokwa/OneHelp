@@ -12,7 +12,7 @@
 ### 📁 Affected Module(s)
 - [ ] `frontend/` (React Native / Expo App)
 - [ ] `backend/` (API Server / Services)
-- [ ] `database/` (Schemas / Migrations / Local DB)
+- [ ] `ai/` (On-Device AI/ML Models / Audio Detection / TFLite)
 - [ ] `connectivity/` (BLE / Mesh / SMS / Offline Protocols)
 - [ ] Root / Project Config / Documentation
 

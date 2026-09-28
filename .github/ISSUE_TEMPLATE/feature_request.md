@@ -15,7 +15,7 @@ How does this feature help users during emergencies or zero-network conditions?
 **Affected Module(s)**
 - [ ] `frontend/`
 - [ ] `backend/`
-- [ ] `database/`
+- [ ] `ai/`
 - [ ] `connectivity/`
 
 **Proposed Implementation**

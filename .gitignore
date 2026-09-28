@@ -60,6 +60,13 @@ wheels/
 .installed.cfg
 *.egg
 
+# --- AI / ML Model Weights & Checkpoints ---
+*.h5
+*.ckpt
+*.pt
+*.pth
+*.pkl
+
 # --- Database & Local Storage ---
 *.sqlite
 *.sqlite3

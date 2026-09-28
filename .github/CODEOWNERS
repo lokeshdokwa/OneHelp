@@ -11,8 +11,8 @@
 # Backend Module (Server & APIs)
 /backend/ @lokeshdokwa
 
-# Database Module (Schemas & Migrations)
-/database/ @lokeshdokwa
+# AI / ML Module (On-Device Models & Audio Analytics)
+/ai/ @lokeshdokwa
 
 # Connectivity Module (BLE Mesh & Offline Protocols)
 /connectivity/ @lokeshdokwa

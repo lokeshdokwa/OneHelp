@@ -31,10 +31,10 @@ OneHelp/
 ├── backend/                   # Emergency Cloud Relay & Dispatch Server
 │   ├── src/                   # REST/WebSocket APIs, SMS gateway bridges
 │   └── README.md              # Backend setup and documentation
-├── database/                  # SQLite & Offline Storage Schemas
-│   ├── schemas/               # Tables, Indexes, and Relational models
-│   ├── migrations/            # Versioned migration scripts
-│   └── README.md              # Database documentation
+├── ai/                        # On-Device AI/ML Models & Audio Analytics
+│   ├── models/                # Quantized TFLite/ONNX models
+│   ├── pipelines/             # Voice stress & sound classification
+│   └── README.md              # AI module documentation
 ├── connectivity/              # Low-level Offline Protocol Modules
 │   ├── ble_mesh/              # Bluetooth Low Energy multi-hop routing
 │   ├── wifi_direct/           # P2P High-bandwidth file/evidence sharing
@@ -52,7 +52,7 @@ OneHelp/
 | :--- | :--- | :--- | :--- |
 | **Frontend** | **Abhishek** | [`frontend/`](./frontend) | Emergency UI/UX, Shake/Volume SOS triggers, Siren, Maps, Fast interaction |
 | **Backend** | **Meezab** | [`backend/`](./backend) | Cloud fallback API, WebSocket dispatch board, First-responder relay |
-| **Database** | **Ashish** | [`database/`](./database) | Offline SQLite, Encrypted Medical Dossiers, Fast helpline queries |
+| **AI / ML** | **Ashish** | [`ai/`](./ai) | On-device ML models, Voice stress analysis, Acoustic gunshot/scream detection |
 | **Connectivity** | **Aman** | [`connectivity/`](./connectivity) | BLE Mesh ad-hoc routing, WiFi-Direct P2P, Compressed SMS payloads |
 | **Repo & DevOps** | **Lokesh** | Root / All | Git Flow, Branch Protection, CI/CD, Merges, Code Reviews |
 

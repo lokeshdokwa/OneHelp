@@ -14,7 +14,7 @@ Monorepo architecture follow kar rahe hain. Har member apne designated module ka
 | :--- | :--- | :--- | :--- |
 | **Abhishek** | Frontend Lead | `frontend/` | React Native (Expo) UI, Screens, Navigation, Audio/Camera sensors |
 | **Meezab** | Backend Lead | `backend/` | API Server, Relay endpoints, Cloud sync, Webhooks |
-| **Ashish** | Database Lead | `database/` | Local SQLite schema, Offline cache, Data migrations, Seeds |
+| **Ashish** | AI / ML Lead | `ai/` | On-device ML models, Voice stress analysis, Gunshot/scream audio detection |
 | **Aman** | Connectivity Lead | `connectivity/` | BLE Mesh network, WiFi-Direct, SMS Fallback, Satellite bridges |
 | **Lokesh** | Repo & DevOps Lead | `*` / Architecture | Version Control, Branch protection, PR Reviews, CI/CD & Merges |
 
@@ -51,7 +51,7 @@ main ◄─────── develop ◄─────── [develop updated]
    - Naming convention:
      - Frontend: `feat/frontend-<task-name>` (e.g. `feat/frontend-sos-button`)
      - Backend: `feat/backend-<task-name>` (e.g. `feat/backend-auth-jwt`)
-     - Database: `feat/db-<task-name>` (e.g. `feat/db-sqlite-indexes`)
+     - AI / ML: `feat/ai-<task-name>` (e.g. `feat/ai-voice-stress`)
      - Connectivity: `feat/conn-<task-name>` (e.g. `feat/conn-ble-advertiser`)
 
 4. **Bugfix Branches (`fix/...`):**
