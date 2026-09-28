@@ -2,10 +2,10 @@
 Offline-first emergency response mobile app (Smart India Hackathon 2026).
 
 ## Team
-- Frontend: (name)
-- Backend: (name)
-- Database: (name)
-- Connectivity: (name)
+- Frontend: (Abhishek)
+- Backend: (Meehan)
+- Database: (Ashish)
+- Connectivity: (Aman)
 
 ## Folders
 - frontend/ - React Native (Expo) mobile app
