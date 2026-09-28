@@ -18,7 +18,7 @@ const reportHazardSchema = z.object({
     radiusMeters: z.number().optional().default(50),
     severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
     photoUri: z.string().optional(),
-    reportedAt: z.union([z.string().datetime(), z.number()]),
+    reportedAt: z.union([z.string().datetime({ offset: true }), z.string().datetime({ offset: false }), z.number()]),
   }),
 });
 
@@ -67,7 +67,9 @@ const getHazardsSchema = z.object({
 
 router.get('/', validate(getHazardsSchema), async (req, res, next) => {
   try {
-    const { lat, lng, radiusKm } = req.query as unknown as { lat: number, lng: number, radiusKm: number };
+    const lat = Number(req.query.lat);
+    const lng = Number(req.query.lng);
+    const radiusKm = Number(req.query.radiusKm ?? 25);
 
     // Bounding box pre-filter to reduce DB scan
     const latDelta = radiusKm / 111.32;
