@@ -1,10 +1,25 @@
-# Emergency Communication and Connectivity Fallback Layer
+# 📡 OneHelp — Connectivity & Emergency Fallback Module
 
-## Overview
+> **Assigned Lead:** Aman  
+> **Repository:** [OneHelp](https://github.com/lokeshdokwa/OneHelp)
+
 This module implements the **Emergency Communication & Connectivity Fallback Layer** for OneHelp.
 It manages distress message delivery across 4 fallback channels:
 
 $$\text{Internet (REST HTTP)} \longrightarrow \text{SMS / Cellular} \longrightarrow \text{Bluetooth P2P Mesh Relay} \longrightarrow \text{Local Storage Queue}$$
+
+---
+
+## 🎯 Scope & Responsibilities
+1. **Multi-Channel Fallback Cascade:**
+   - Central controller (`communicationManager.js`) that automatically routes emergency distress packets through available hardware transports.
+2. **BLE Mesh & P2P Forwarding:**
+   - Multi-hop SOS packet forwarding over Bluetooth P2P when cellular and internet are offline.
+   - Duplicate message protection via unique `messageId` deduplication cache and hop-limit safety controls.
+3. **SMS Fallback Engine:**
+   - Cellular SMS transport routing distress coordinates and message payload to trusted ICE contacts (*Rajesh Sharma* & *112 ERSS*).
+4. **Local Offline Queue:**
+   - Persistent `localStorage`/IndexedDB queue with SQLite schema contract for auto-retrying alerts upon network restoration.
 
 ---
 
