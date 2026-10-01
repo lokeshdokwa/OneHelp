@@ -1,47 +1,64 @@
-# 📡 OneHelp — Connectivity & Mesh Module
+# 📡 OneHelp — Connectivity & Emergency Fallback Module
 
 > **Assigned Lead:** Aman  
 > **Repository:** [OneHelp](https://github.com/lokeshdokwa/OneHelp)
 
-This folder contains low-level offline communication protocols, Bluetooth Low Energy (BLE) Mesh networking, WiFi-Direct, and compressed SMS fallback engines.
+This module implements the **Emergency Communication & Connectivity Fallback Layer** for OneHelp.
+It manages distress message delivery across 4 fallback channels:
+
+$$\text{Internet (REST HTTP)} \longrightarrow \text{SMS / Cellular} \longrightarrow \text{Bluetooth P2P Mesh Relay} \longrightarrow \text{Local Storage Queue}$$
 
 ---
 
 ## 🎯 Scope & Responsibilities
-1. **BLE Mesh Ad-Hoc Network:**
-   - Multi-hop SOS packet forwarding without cellular or internet.
-   - Low-power advertising and background scanning.
-   - De-duplication via unique packet IDs and TTL (Time-To-Live) decrements.
-2. **WiFi-Direct / Multipeer Bridge:**
-   - High-bandwidth P2P sharing of photo/audio evidence between victims and rescue teams within 100 meters.
-3. **Compressed SMS Fallback:**
-   - Base64 / binary bit-packing of GPS coordinates + Emergency Type + Blood Group into a single 140-character SMS payload.
-4. **Satellite Bridge / LoRa (Optional SIH Innovation):**
-   - Protocol definitions for external hardware dongles or LoRa transceivers.
+1. **Multi-Channel Fallback Cascade:**
+   - Central controller (`communicationManager.js`) that automatically routes emergency distress packets through available hardware transports.
+2. **BLE Mesh & P2P Forwarding:**
+   - Multi-hop SOS packet forwarding over Bluetooth P2P when cellular and internet are offline.
+   - Duplicate message protection via unique `messageId` deduplication cache and hop-limit safety controls.
+3. **SMS Fallback Engine:**
+   - Cellular SMS transport routing distress coordinates and message payload to trusted ICE contacts (*Rajesh Sharma* & *112 ERSS*).
+4. **Local Offline Queue:**
+   - Persistent `localStorage`/IndexedDB queue with SQLite schema contract for auto-retrying alerts upon network restoration.
 
 ---
 
-## 📁 Recommended Structure
-```
-connectivity/
-├── ble_mesh/
-│   ├── packet_spec.md       # Binary packet structure (Header, UUID, TTL, Payload)
-│   ├── advertiser.ts        # BLE advertisement broadcaster
-│   └── scanner.ts           # Background BLE receiver & forwarder
-├── wifi_direct/             # High-bandwidth peer-to-peer evidence transfer
-├── sms_encoder/             # Compact SMS payload builder & parser
-└── README.md
-```
+## 🏗️ Architecture Components
+
+- `src/services/emergencyPacket.js`: Standardized Emergency Packet data model, states (`PENDING`, `SENDING`, `DELIVERED`, `RELAYED`, `QUEUED`, `FAILED`), and duplicate hash generator.
+- `src/services/connectivityDetector.js`: Real-time detector for Internet (`navigator.onLine`), SMS availability, Bluetooth support, and peer count; provides state subscription callbacks.
+- `src/services/transports/httpTransport.js`: Primary Internet REST API transport (`/v1/sos/dispatch`).
+- `src/services/transports/smsTransport.js`: Cellular SMS fallback transport using trusted family contacts (`Rajesh Sharma`, `112 ERSS`).
+- `src/services/transports/bleTransport.js`: Bluetooth P2P Relay transport with **Duplicate Packet Protection** (`seenMessageIds` deduplication cache) and hop count limit tracking.
+- `src/services/offlineQueue.js`: Persistent local storage queue manager (`localStorage`/IndexedDB) with SQLite schema contract.
+- `src/services/communicationManager.js`: Central controller managing the fallback decision hierarchy and automatic queue retry loop upon network reconnection.
+- `src/services/__tests__/communicationManager.test.js`: Automated 8-test unit test suite.
+- `src/services/__tests__/runTests.js`: CLI test runner.
 
 ---
 
-## ⚡ Git Workflow for Connectivity
-1. Branch from `develop`:
-   ```bash
-   git checkout develop
-   git pull origin develop
-   git checkout -b feat/conn-<feature-name>
-   ```
-2. Test protocol parsing and TTL bounds.
-3. Commit with: `feat(conn): implement 16-byte compressed SOS payload encoder`
-4. Open PR to `develop`.
+## 🧪 How to Run Automated Unit Tests
+
+Inside the `connectivity` folder or project root:
+```bash
+node src/services/__tests__/runTests.js
+```
+
+All 8 tests verify:
+1. Internet available → HTTP Transport (`DELIVERED`)
+2. Internet unavailable + SMS available → SMS Transport (`DELIVERED`)
+3. Internet/SMS unavailable + Bluetooth available → Bluetooth P2P Relay (`RELAYED`)
+4. All channels unavailable → Enqueues to Local Storage Queue (`QUEUED`)
+5. Connectivity restoration → Automatically retries & drains queued distress alerts
+6. Duplicate packet rejection → Prevents infinite relay loops across mesh nodes
+
+---
+
+## 📱 How to Run Interactive Phone Preview
+
+```bash
+npm install
+npm run dev
+```
+
+Open `http://<your-local-ip>:3000` on your mobile phone browser to test real-time fallback channel switching (`ONLINE`, `SMS ONLY`, `MESH`, `OFFLINE`).
