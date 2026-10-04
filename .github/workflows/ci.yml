@@ -58,6 +58,10 @@ jobs:
   validate-backend:
     name: 🖥️ Backend Validation & Unit Tests
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/onehelp_test?schema=public"
+      JWT_SECRET: ci-test-jwt-secret-not-real
+      NODE_ENV: test
 
     steps:
       - name: 📥 Checkout repository
