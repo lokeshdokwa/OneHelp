@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   validate-frontend:
-    name: 📱 Frontend Validation (TypeScript)
+    name: 📱 Frontend Validation & Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -33,3 +33,60 @@ jobs:
       - name: 🔍 TypeScript Typecheck
         working-directory: ./frontend
         run: npm run typecheck
+
+      - name: 🧪 Run Connectivity Service Tests
+        working-directory: ./frontend
+        run: npm run test:connectivity
+
+  validate-connectivity:
+    name: 📡 Connectivity Fallback Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 🧪 Run Emergency Routing & Fallback Suite (8/8)
+        working-directory: ./connectivity
+        run: npm test
+
+  validate-backend:
+    name: 🖥️ Backend Validation & Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: 📦 Install Backend Dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: 🔍 Validate Prisma Schema
+        working-directory: ./backend
+        run: npx prisma validate
+
+      - name: ⚙️ Generate Prisma Client
+        working-directory: ./backend
+        run: npx prisma generate
+
+      - name: 🔍 TypeScript Typecheck
+        working-directory: ./backend
+        run: npm run typecheck
+
+      - name: 🧪 Run Backend Unit & Socket Tests (14/14)
+        working-directory: ./backend
+        run: npm test
+
